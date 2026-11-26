@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10172b">
+  <title>파워볼 번호 생성기</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #10172b;
+      color: #f5f7ff;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      --muted: #a4aec8;
+      --panel: rgba(26, 36, 61, .82);
+      --line: rgba(255, 255, 255, .09);
+      --accent: #9d8aff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      padding: 48px 20px;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(108, 91, 220, .22), transparent 48%),
+        radial-gradient(ellipse at 100% 80%, rgba(37, 116, 178, .12), transparent 40%),
+        #10172b;
+    }
+
+    main { width: min(100%, 760px); margin: 0 auto; }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #b7aaff;
+      font-size: .76rem;
+      font-weight: 750;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    header { margin-bottom: 30px; text-align: center; }
+    h1 { margin: 0; font-size: clamp(2rem, 6vw, 3.25rem); letter-spacing: -.055em; }
+    .subtitle { margin: 12px 0 0; color: var(--muted); line-height: 1.65; }
+
+    .card {
+      padding: clamp(22px, 5vw, 36px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .24);
+      backdrop-filter: blur(14px);
+    }
+
+    .numbers {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: clamp(9px, 2.2vw, 16px);
+      margin: 6px 0 28px;
+    }
+
+    .ball {
+      display: grid;
+      width: clamp(46px, 11vw, 66px);
+      aspect-ratio: 1;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .6);
+      border-radius: 50%;
+      background: linear-gradient(145deg, #fff, #dce4f7);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .24), inset 0 2px 3px #fff;
+      color: #17213a;
+      font-size: clamp(1rem, 4vw, 1.35rem);
+      font-weight: 800;
+    }
+
+    .ball.powerball {
+      margin-left: clamp(4px, 1vw, 10px);
+      border-color: #ff9aaf;
+      background: linear-gradient(145deg, #ff6480, #da315c);
+      box-shadow: 0 8px 22px rgba(222, 49, 92, .27), inset 0 2px 3px rgba(255, 255, 255, .5);
+      color: white;
+    }
+
+    .actions { display: flex; justify-content: center; gap: 10px; }
+    button {
+      min-height: 48px;
+      padding: 0 22px;
+      border: 0;
+      border-radius: 12px;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform .15s ease, filter .15s ease;
+    }
+    button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    button:focus-visible, input:focus-visible { outline: 3px solid #c1b6ff; outline-offset: 3px; }
+    .generate { background: linear-gradient(120deg, #b1a2ff, #8370f2); color: #17132c; }
+    .copy { border: 1px solid var(--line); background: rgba(255, 255, 255, .06); color: #f5f7ff; }
+    button:disabled { cursor: wait; opacity: .7; }
+
+    .divider { height: 1px; margin: 30px 0; background: var(--line); }
+    h2 { margin: 0 0 18px; font-size: 1.12rem; letter-spacing: -.02em; }
+    .jackpot-label { display: block; margin-bottom: 9px; color: var(--muted); font-size: .9rem; }
+    .input-wrap { position: relative; }
+    input {
+      width: 100%;
+      min-height: 50px;
+      padding: 0 60px 0 15px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 11px;
+      background: rgba(7, 12, 26, .5);
+      color: #fff;
+      font: inherit;
+      font-size: 1rem;
+    }
+    .unit { position: absolute; top: 50%; right: 16px; color: var(--muted); transform: translateY(-50%); }
+    .hint { margin: 8px 0 20px; color: #8792ad; font-size: .79rem; }
+    .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .stat {
+      min-height: 106px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .035);
+    }
+    .stat-label { display: block; margin-bottom: 10px; color: var(--muted); font-size: .82rem; }
+    .stat-value { display: block; font-size: clamp(1.1rem, 4vw, 1.45rem); font-weight: 800; letter-spacing: -.035em; }
+    .stat-value.negative { color: #ff9aaa; }
+    .footnote { margin: 16px 0 0; color: #8994ae; font-size: .78rem; line-height: 1.65; }
+    .rules { margin-top: 18px; color: #a4aec8; font-size: .85rem; text-align: center; }
+    #announcement { min-height: 1.4em; margin: 12px 0 0; color: #c6bcff; font-size: .85rem; text-align: center; }
+
+    @media (max-width: 480px) {
+      body { padding: 34px 14px; }
+      .card { border-radius: 19px; }
+      .actions { flex-direction: column; }
+      .actions button { width: 100%; }
+      .stat { min-height: 96px; padding: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">POWERBALL · NUMBER GENERATOR</p>
+      <h1>오늘의 파워볼</h1>
+      <p class="subtitle">버튼을 눌러 행운의 번호를 생성하고<br>당첨 확률과 기대값을 확인해 보세요.</p>
+    </header>
+
+    <section class="card" aria-label="파워볼 번호 생성 및 기대값">
+      <div class="numbers" id="numbers" aria-label="생성된 번호" aria-live="polite"></div>
+      <div class="actions">
+        <button class="generate" id="generate" type="button">번호 생성하기</button>
+        <button class="copy" id="copy" type="button">번호 복사</button>
+      </div>
+      <p id="announcement" role="status" aria-live="polite"></p>
+
+      <div class="divider"></div>
+
+      <section aria-labelledby="odds-title">
+        <h2 id="odds-title">1등 당첨 확률 &amp; 기대값</h2>
+        <label class="jackpot-label" for="jackpot">현재 잭팟 금액을 입력하세요</label>
+        <div class="input-wrap">
+          <input id="jackpot" type="number" min="0" step="1" value="100" inputmode="decimal">
+          <span class="unit">백만 달러</span>
+        </div>
+        <p class="hint">예: 잭팟이 $500 million이면 500을 입력하세요.</p>
+
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-label">1등 당첨 확률</span>
+            <strong class="stat-value">1 / 292,201,338</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">잭팟 당첨 확률</span>
+            <strong class="stat-value">약 0.000000342%</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">1장당 총 기대 상금</span>
+            <strong class="stat-value" id="gross-value">$0.00</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">1장당 순 기대값 <span>(상금 − $2)</span></span>
+            <strong class="stat-value" id="net-value">$0.00</strong>
+          </div>
+        </div>
+        <p class="footnote">기대값은 잭팟 연금형 표시 금액과 고정 상금(파워플레이 제외)을 기준으로 한 1장당 확률 가중 평균이며, 티켓 가격 $2를 반영한 순 기대값도 함께 표시합니다. 세금, 현금 일시불 선택, 공동 당첨에 따른 상금 분할은 반영하지 않았습니다. 실제 수령액과 결과는 달라질 수 있습니다.</p>
+      </section>
+    </section>
+    <p class="rules">흰 공 5개: 1–69 · 파워볼 1개: 1–26</p>
+  </main>
+
+  <script>
+    const whiteBallCount = 5;
+    const ticketPrice = 2;
+    const jackpotOdds = 292201338;
+    const fixedPrizeExpectedValue =
+      1000000 / 11688053 +
+      50000 / 913129 +
+      100 / 36525 +
+      100 / 14494 +
+      7 / 580 +
+      7 / 701 +
+      4 / 92 +
+      4 / 38;
+
+    const numbersElement = document.querySelector("#numbers");
+    const jackpotInput = document.querySelector("#jackpot");
+    const grossValue = document.querySelector("#gross-value");
+    const netValue = document.querySelector("#net-value");
+    const announcement = document.querySelector("#announcement");
+    let currentNumbers = [];
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(amount);
+    }
+
+    function updateExpectedValue() {
+      const jackpotMillions = Number(jackpotInput.value);
+      const jackpotAmount = Number.isFinite(jackpotMillions) && jackpotMillions >= 0
+        ? jackpotMillions * 1000000
+        : 0;
+      const gross = fixedPrizeExpectedValue + jackpotAmount / jackpotOdds;
+      const net = gross - ticketPrice;
+
+      grossValue.textContent = formatCurrency(gross);
+      netValue.textContent = formatCurrency(net);
+      netValue.classList.toggle("negative", net < 0);
+    }
+
+    function generateNumbers() {
+      const whiteBalls = new Set();
+      while (whiteBalls.size < whiteBallCount) {
+        whiteBalls.add(Math.floor(Math.random() * 69) + 1);
+      }
+      currentNumbers = [...whiteBalls].sort((a, b) => a - b);
+      currentNumbers.push(Math.floor(Math.random() * 26) + 1);
+
+      numbersElement.replaceChildren();
+      currentNumbers.forEach((number, index) => {
+        const ball = document.createElement("span");
+        ball.className = index === whiteBallCount ? "ball powerball" : "ball";
+        ball.textContent = String(number).padStart(2, "0");
+        ball.setAttribute("aria-label", index === whiteBallCount
+          ? `파워볼 ${number}`
+          : `흰 공 ${number}`);
+        numbersElement.append(ball);
+      });
+      announcement.textContent = "새 번호를 생성했습니다.";
+    }
+
+    document.querySelector("#generate").addEventListener("click", generateNumbers);
+    jackpotInput.addEventListener("input", updateExpectedValue);
+    document.querySelector("#copy").addEventListener("click", async (event) => {
+      if (currentNumbers.length === 0) {
+        announcement.textContent = "먼저 번호를 생성해 주세요.";
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(
+          `${currentNumbers.slice(0, whiteBallCount).join(", ")} | Powerball ${currentNumbers[whiteBallCount]}`
+        );
+        announcement.textContent = "번호를 클립보드에 복사했습니다.";
+      } catch (error) {
+        announcement.textContent = "복사할 수 없습니다. 브라우저의 클립보드 권한을 확인해 주세요.";
+      }
+    });
+
+    updateExpectedValue();
+    generateNumbers();
+  </script>
+</body>
+</html>
